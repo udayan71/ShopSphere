@@ -1,0 +1,182 @@
+﻿@using ShopSphere.Domain.Enums
+@model IEnumerable<ShopSphere.Domain.Models.OrderItem>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">Management: All Orders</h2>
+        <div class="text-end d-flex align-items-center">
+
+            <a asp-action="ExportOrdersToExcel"
+               class="btn btn-primary shadow-sm me-3">
+                <i class="fas fa-file-excel me-1"></i> Export to Excel
+            </a>
+
+            <span class="badge bg-white text-primary border border-primary px-3 py-2 shadow-sm">
+                <i class="fas fa-list-ul me-1"></i> Total Orders: @Model.Count()
+            </span>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm border-0 text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No orders found in the system.</h4>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase fs-xs fw-bold text-secondary">Order & Seller Info</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary">Product</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary">Qty/Price</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary text-center">Status</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary text-end pe-4">Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var status = (OrderStatus)item.Status;
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">Order #@item.OrderId</span>
+                                        <small class="text-muted"><i class="fas fa-store me-1"></i>Seller: @item.SellerId</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-secondary fw-medium">ID: @item.ProductId</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold">₹ @item.Price.ToString("N2")</span>
+                                        <small class="text-muted">Quantity: @item.Quantity</small>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var badgeClass = status switch
+                                        {
+                                            OrderStatus.Pending => "bg-soft-warning text-warning",
+                                            OrderStatus.ReadyForPickup => "bg-soft-info text-info",
+                                            OrderStatus.Shipped => "bg-soft-primary text-primary",
+                                            OrderStatus.OutForDelivery => "bg-soft-secondary text-secondary",
+                                            OrderStatus.Delivered => "bg-soft-success text-success",
+                                            _ => "bg-soft-danger text-danger"
+                                        };
+                                    }
+                                    <span class="badge rounded-pill px-3 py-2 @badgeClass">
+                                        @status
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (status >= OrderStatus.ReadyForPickup && status != OrderStatus.Delivered && status != OrderStatus.Cancelled)
+                                    {
+                                        <form asp-action="UpdateOrderStatus" method="post" class="d-flex flex-column align-items-end">
+                                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+
+                                            <div class="input-group input-group-sm mb-1" style="max-width: 180px;">
+                                                <select name="status" class="form-select border-primary-subtle">
+                                                    <option value="3">Shipped</option>
+                                                    <option value="4">Out For Delivery</option>
+                                                    <option value="5">Delivered</option>
+                                                    <option value="6">Cancelled</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-admin-blue">
+                                                    Go
+                                                </button>
+                                            </div>
+                                        </form>
+                                    }
+                                    else if (status == OrderStatus.Pending)
+                                    {
+                                        <span class="badge bg-light text-muted border fw-normal">
+                                            <i class="fas fa-hourglass-half me-1"></i> Waiting for Seller
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-success border border-success-subtle fw-normal">
+                                            <i class="fas fa-check-double me-1"></i> Finalized
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Styling for the Blue Aesthetic Select/Button */
+    .btn-admin-blue {
+        background-color: #4A86E8;
+        color: white;
+        border: none;
+        transition: 0.2s;
+    }
+
+        .btn-admin-blue:hover {
+            background-color: #357ABD;
+            color: white;
+        }
+
+    /* Soft Badge Styles */
+    .bg-soft-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .bg-soft-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .bg-soft-primary {
+        background-color: #cfe2ff;
+        color: #084298;
+    }
+
+    .bg-soft-secondary {
+        background-color: #e2e3e5;
+        color: #41464b;
+    }
+
+    .bg-soft-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .bg-soft-danger {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+
+    /* Layout tweaks */
+    .fs-xs {
+        font-size: 0.75rem;
+    }
+
+    .table thead th {
+        border-bottom: 1px solid #edf2f9;
+    }
+
+    .table tbody td {
+        border-bottom: 1px solid #edf2f9;
+        padding: 1rem 0.5rem;
+    }
+
+    .form-select-sm {
+        font-size: 0.8rem;
+    }
+</style>

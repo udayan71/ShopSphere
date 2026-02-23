@@ -1,0 +1,235 @@
+﻿@model BecomeSellerViewModel
+
+@{
+    ViewData["Title"] = "Seller Application";
+}
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body {
+        background-color: #ffffff; /* Pure white to match ShopSphere branding */
+        font-family: 'Inter', sans-serif;
+        color: #334155;
+    }
+
+    .onboarding-container {
+        max-width: 600px;
+        margin: 4rem auto;
+        padding: 0 20px;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+        .header-section i {
+            color: #4a86e8;
+            margin-bottom: 1rem;
+        }
+
+        .header-section h2 {
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+
+    /* Custom Status Boxes */
+    .status-box {
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: #fff9db;
+        border: 1px solid #fab005;
+        color: #856404;
+    }
+
+    .status-rejected {
+        background-color: #fff5f5;
+        border: 1px solid #ffc9c9;
+        color: #c92a2a;
+    }
+
+    .status-approved {
+        background-color: #ebfbee;
+        border: 1px solid #b2f2bb;
+        color: #2b8a3e;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    /* Form Card */
+    .application-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin-bottom: 0.6rem;
+    }
+
+    .input-group-text {
+        background-color: #f8fafc;
+        border: 1px solid #cbd5e1;
+        color: #94a3b8;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .form-control {
+        border-radius: 0 10px 10px 0;
+        border: 1px solid #cbd5e1;
+        padding: 0.75rem 1rem;
+    }
+
+        .form-control:focus {
+            border-color: #4a86e8;
+            box-shadow: 0 0 0 4px rgba(74, 134, 232, 0.1);
+        }
+
+    textarea.form-control {
+        border-radius: 10px; /* Textarea doesn't have an icon group usually */
+    }
+
+    .btn-apply {
+        background-color: #4a86e8;
+        border: none;
+        color: white;
+        padding: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        width: 100%;
+        font-size: 1rem;
+        margin-top: 1rem;
+        transition: all 0.2s;
+    }
+
+        .btn-apply:hover {
+            background-color: #3b71ca;
+            transform: translateY(-1px);
+        }
+
+    .rejection-reason {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: block;
+        opacity: 0.9;
+    }
+</style>
+
+<div class="onboarding-container">
+
+    <div class="header-section">
+        <i class="fas fa-store fa-3x"></i>
+        <h2>Partner with ShopSphere</h2>
+        <p class="text-muted">Fill in your business details to start selling globally</p>
+    </div>
+
+    @* --- Status Management --- *@
+    @if (Model?.Status == "Pending")
+    {
+        <div class="status-box status-pending">
+            <i class="fas fa-clock fa-lg me-3"></i>
+            <div>
+                <strong>Application Pending</strong><br />
+                We are currently reviewing your details. This usually takes 24-48 hours.
+            </div>
+        </div>
+    }
+    else if (Model?.Status == "Rejected")
+    {
+        <div class="status-box status-rejected">
+            <i class="fas fa-exclamation-circle fa-lg me-3"></i>
+            <div>
+                <strong>Application Rejected</strong>
+                <span class="rejection-reason">Reason: @Model.RejectionReason</span>
+            </div>
+        </div>
+    }
+    else if (Model?.Status == "Approved")
+    {
+        <div class="status-box status-approved">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h4>Congratulations! 🎉</h4>
+            <p class="mb-0">You are an approved ShopSphere seller. Head over to your dashboard to list products.</p>
+        </div>
+    }
+
+    @* --- Form Section --- *@
+    @if (Model?.Status != "Approved")
+    {
+        <div class="application-card">
+            <form asp-action="BecomeSeller" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Business Name -->
+                <div class="mb-4">
+                    <label asp-for="BusinessName" class="form-label">Legal Business Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-building"></i></span>
+                        <input asp-for="BusinessName" class="form-control" placeholder="e.g. Acme Retail Solutions" />
+                    </div>
+                    <span asp-validation-for="BusinessName" class="text-danger small"></span>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="mb-4">
+                    <label asp-for="PhoneNumber" class="form-label">Contact Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+91 00000 00000" />
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- GST Number -->
+                <div class="mb-4">
+                    <label asp-for="GSTNumber" class="form-label">GSTIN / Tax ID</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                        <input asp-for="GSTNumber" class="form-control" placeholder="22AAAAA0000A1Z5" />
+                    </div>
+                    <span asp-validation-for="GSTNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- Address -->
+                <div class="mb-4">
+                    <label asp-for="Address" class="form-label">Registered Business Address</label>
+                    <textarea asp-for="Address" class="form-control" rows="3" placeholder="Full office or warehouse address..."></textarea>
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-apply">
+                    @if (Model?.Status == "Rejected")
+                    {
+                        <span><i class="fas fa-redo me-2"></i> Update & Reapply</span>
+                    }
+                    else
+                    {
+                        <span><i class="fas fa-paper-plane me-2"></i> Submit Application</span>
+                    }
+                </button>
+            </form>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

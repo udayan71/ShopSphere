@@ -1,0 +1,210 @@
+﻿@using ShopSphere.Domain.Models
+@model Product
+
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', sans-serif;
+        color: #334155;
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 3rem auto;
+    }
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        padding: 2.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+        .page-header h2 {
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #475569;
+        margin-bottom: 0.6rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #4a86e8;
+            box-shadow: 0 0 0 4px rgba(74, 134, 232, 0.1);
+        }
+
+    .input-group-text {
+        background-color: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px 0 0 10px;
+        color: #64748b;
+    }
+
+    .input-group > .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .btn-submit {
+        background-color: #4a86e8;
+        border: none;
+        color: white;
+        padding: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        width: 100%;
+        font-size: 1rem;
+        margin-top: 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-submit:hover {
+            background-color: #3b71ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 134, 232, 0.2);
+        }
+
+    .image-upload-wrapper {
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+        .image-upload-wrapper:hover {
+            border-color: #4a86e8;
+            background-color: #f1f7ff;
+        }
+
+        .image-upload-wrapper i {
+            font-size: 2rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+</style>
+
+<div class="container">
+    <div class="form-container">
+
+        <div class="page-header">
+            <h2>Add New Product</h2>
+            <p>Fill in the details below to list your product on ShopSphere</p>
+        </div>
+
+        <div class="form-card">
+            <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-4 small"></div>
+
+                <!-- Product Name -->
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label">Product Title</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Wireless Noise Cancelling Headphones" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label">Product Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Tell customers about your product..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <!-- Price -->
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Stock" class="form-label">Inventory Stock</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-boxes"></i></span>
+                            <input asp-for="Stock" type="number" class="form-control" placeholder="Quantity" />
+                        </div>
+                        <span asp-validation-for="Stock" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="mb-4">
+                    <label class="form-label">Product Images</label>
+                    <div class="image-upload-wrapper" onclick="document.getElementById('fileInput').click();">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p class="mb-1 fw-bold">Click to upload images</p>
+                        <p class="text-muted small mb-0">Supports JPG, PNG (Max 5 images)</p>
+                        <input type="file" id="fileInput" name="images" multiple class="d-none" onchange="updateFileName(this)" />
+                    </div>
+                    <div id="file-count" class="text-muted small mt-2 text-center"></div>
+                </div>
+
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-plus-circle me-2"></i> Submit Product
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-action="Index" class="text-decoration-none small text-muted">Cancel and go back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateFileName(input) {
+            const count = input.files.length;
+            const display = document.getElementById('file-count');
+            if (count > 0) {
+                display.innerHTML = `<i class="fas fa-file-image me-1"></i> ${count} file(s) selected`;
+            } else {
+                display.innerHTML = "";
+            }
+        }
+    </script>
+}

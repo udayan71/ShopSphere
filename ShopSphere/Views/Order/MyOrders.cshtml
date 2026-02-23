@@ -1,0 +1,174 @@
+﻿@using ShopSphere.Domain.Enums
+@model IEnumerable<ShopSphere.Domain.Models.OrderItem>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">My Orders</h2>
+            <p class="text-muted small">Track and manage your recent purchases</p>
+        </div>
+        <i class="fas fa-shopping-bag fa-2x text-primary-light"></i>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm border-0 text-center py-5">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="fas fa-ghost fa-3x text-light-gray"></i>
+                </div>
+                <h4 class="text-secondary">You haven't ordered anything yet.</h4>
+                <p class="text-muted mb-4">Explore our products and find something you love!</p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-checkout-custom px-4">
+                    Start Shopping
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase fs-xs fw-bold text-secondary">Order Details</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary text-center">Qty</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary">Price</th>
+                            <th class="py-3 text-uppercase fs-xs fw-bold text-secondary text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var status = (OrderStatus)item.Status;
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="order-icon-box me-3">
+                                            <i class="fas fa-box text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold text-dark d-block">Order #@item.OrderId</span>
+                                            <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.7rem;">
+                                                Product: @item.ProductId
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">@item.Quantity</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark fs-5">₹ @item.Price.ToString("N2")</span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var badgeConfig = status switch
+                                        {
+                                            OrderStatus.Pending => ("bg-soft-warning text-warning", "fa-clock"),
+                                            OrderStatus.ReadyForPickup => ("bg-soft-info text-info", "fa-people-carry"),
+                                            OrderStatus.Shipped => ("bg-soft-primary text-primary", "fa-truck"),
+                                            OrderStatus.OutForDelivery => ("bg-soft-secondary text-secondary", "fa-shipping-fast"),
+                                            OrderStatus.Delivered => ("bg-soft-success text-success", "fa-check-circle"),
+                                            _ => ("bg-soft-danger text-danger", "fa-exclamation-triangle")
+                                        };
+                                    }
+                                    <span class="badge rounded-pill px-3 py-2 @badgeConfig.Item1">
+                                        <i class="fas @badgeConfig.Item2 me-1"></i> @status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Consistent Theme Color */
+    :root {
+        --brand-blue: #4A86E8;
+    }
+
+    /* Soft Badge Styles */
+    .bg-soft-warning {
+        background-color: #fff8e1;
+        color: #f59e0b;
+    }
+
+    .bg-soft-info {
+        background-color: #e0f2fe;
+        color: #0ea5e9;
+    }
+
+    .bg-soft-primary {
+        background-color: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .bg-soft-secondary {
+        background-color: #f3f4f6;
+        color: #4b5563;
+    }
+
+    .bg-soft-success {
+        background-color: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .bg-soft-danger {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    /* Custom Elements */
+    .order-icon-box {
+        width: 40px;
+        height: 40px;
+        background: #f0f7ff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-checkout-custom {
+        background-color: var(--brand-blue);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.2s;
+        border: none;
+    }
+
+        .btn-checkout-custom:hover {
+            background-color: #357ABD;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .text-primary-light {
+        color: #dbeafe;
+    }
+
+    .text-light-gray {
+        color: #e5e7eb;
+    }
+
+    .fs-xs {
+        font-size: 0.75rem;
+    }
+
+    .table thead th {
+        border: none;
+        letter-spacing: 0.05em;
+    }
+
+    .table tbody td {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.25rem 0.5rem;
+    }
+</style>

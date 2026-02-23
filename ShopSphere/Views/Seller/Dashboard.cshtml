@@ -1,0 +1,235 @@
+﻿@model IEnumerable<ShopSphere.Domain.Models.Product>
+
+@{
+    ViewData["Title"] = "My Products";
+}
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --ss-primary: #4a86e8;
+        --ss-bg: #f8fafc;
+        --ss-text: #334155;
+        --ss-border: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--ss-bg);
+        font-family: 'Inter', sans-serif;
+        color: var(--ss-text);
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border: 1px solid var(--ss-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .table thead th {
+        background-color: #f1f5f9;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Status Pill Styles */
+    .status-pill {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .status-approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-pending {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .product-img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--ss-border);
+        transition: transform 0.2s;
+    }
+
+        .product-img:hover {
+            transform: scale(1.1);
+        }
+
+    .img-stack {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .price-text {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .rejection-note {
+        font-size: 0.75rem;
+        color: #ef4444;
+        margin-top: 4px;
+        display: block;
+        font-style: italic;
+    }
+
+    .btn-add {
+        background-color: var(--ss-primary);
+        color: white;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+        .btn-add:hover {
+            background-color: #3b71ca;
+            color: white;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Products</h2>
+            <p class="text-muted small mb-0">Manage your catalog and monitor listing approvals</p>
+        </div>
+        <a asp-action="AddProduct" class="btn btn-add">
+            <i class="fas fa-plus me-2"></i>Add New Product
+        </a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Product Info</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Gallery</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i>
+                                    <p class="mb-0">No products found in your catalog.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">@(product.Name ?? "Unnamed Product")</div>
+                                    <span class="text-muted x-small">ID: #@product.ProductId</span>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹@product.Price.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    @if (product.Stock <= 5)
+                                    {
+                                        <span class="text-danger fw-600"><i class="fas fa-exclamation-triangle me-1"></i>@product.Stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@product.Stock</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var status = product.Status?.Trim();
+                                        if (status == "Approved")
+                                        {
+                                            <span class="status-pill status-approved"><i class="fas fa-check-circle me-1"></i>Approved</span>
+                                        }
+                                        else if (status == "Rejected")
+                                        {
+                                            <span class="status-pill status-rejected"><i class="fas fa-times-circle me-1"></i>Rejected</span>
+                                            @if (!string.IsNullOrEmpty(product.RejectionReason))
+                                            {
+                                                <span class="rejection-note">Note: @product.RejectionReason</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="status-pill status-pending"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <div class="img-stack">
+                                        @if (product.Images != null && product.Images.Any())
+                                        {
+                                            foreach (var img in product.Images.Take(3))
+                                            {
+                                                @if (!string.IsNullOrEmpty(img.ImagePath))
+                                                {
+                                                    <img src="@img.ImagePath" class="product-img" alt="Preview" />
+                                                }
+                                            }
+                                            @if (product.Images.Count() > 3)
+                                            {
+                                                <span class="text-muted small align-self-center">+@(product.Images.Count() - 3)</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">No images</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Add any specific JS for tooltips here if needed *@
+}

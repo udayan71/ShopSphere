@@ -1,0 +1,305 @@
+﻿@model ShopSphere.Domain.Models.Product
+
+@{
+    ViewData["Title"] = Model?.Name ?? "Product Details";
+}
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --ss-primary: #4a86e8;
+        --ss-text-main: #1e293b;
+        --ss-text-muted: #64748b;
+        --ss-success: #10b981;
+        --ss-danger: #ef4444;
+    }
+
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', sans-serif;
+        color: var(--ss-text-main);
+    }
+
+    .details-container {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+    }
+
+    /* Image Gallery Styling */
+    .main-image-wrapper {
+        background-color: #f8fafc;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        margin-bottom: 15px;
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .thumbnail-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+
+    .thumb-item {
+        aspect-ratio: 1/1;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+
+        .thumb-item:hover {
+            border-color: var(--ss-primary);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* Product Info Styling */
+    .product-title {
+        font-weight: 700;
+        font-size: 2rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 10px;
+    }
+
+    .price-large {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--ss-primary);
+        margin-bottom: 20px;
+    }
+
+    .badge-ss {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .stock-in {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .stock-out {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .description-box {
+        margin: 25px 0;
+        line-height: 1.7;
+        color: #475569;
+        font-size: 1.05rem;
+    }
+
+    /* Form & Input Styling */
+    .qty-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ss-text-muted);
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .qty-input {
+        width: 100px;
+        height: 48px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+        .qty-input:focus {
+            border-color: var(--ss-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 134, 232, 0.1);
+        }
+
+    .btn-add-cart {
+        background-color: var(--ss-primary);
+        color: white;
+        border: none;
+        padding: 16px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+        .btn-add-cart:hover {
+            background-color: #3b71ca;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(74, 134, 232, 0.25);
+            color: white;
+        }
+
+    .btn-disabled {
+        background-color: #cbd5e1;
+        cursor: not-allowed;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--ss-text-muted);
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container pb-5">
+    @if (Model == null)
+    {
+        <div class="alert alert-danger mt-5">Product information is currently unavailable.</div>
+    }
+    else
+    {
+        <div class="details-container">
+            <div class="row g-5">
+
+                <!-- Left: Image Section -->
+                <div class="col-lg-6">
+                    <div class="main-image-wrapper">
+                        @if (Model.Images != null && Model.Images.Any())
+                        {
+                            <img id="mainProdImage" src="@Model.Images.First().ImagePath" class="main-image" alt="@Model.Name" />
+                        }
+                        else
+                        {
+                            <i class="fas fa-image fa-5x text-light"></i>
+                        }
+                    </div>
+
+                    @if (Model.Images != null && Model.Images.Count() > 1)
+                    {
+                        <div class="thumbnail-grid">
+                            @foreach (var img in Model.Images)
+                            {
+                                <div class="thumb-item" onclick="changeImage('@img.ImagePath')">
+                                    <img src="@img.ImagePath" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Right: Content Section -->
+                <div class="col-lg-6">
+                    <div class="ps-lg-4">
+                        <div class="info-label">Original ShopSphere Collection</div>
+                        <h1 class="product-title">@Model.Name</h1>
+
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="price-large me-3 mb-0">₹@Model.Price.ToString("N2")</div>
+
+                            @if (Model.Stock > 0)
+                            {
+                                <span class="badge-ss stock-in">
+                                    <i class="fas fa-check-circle me-1"></i> In Stock (@Model.Stock)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-ss stock-out">
+                                    <i class="fas fa-times-circle me-1"></i> Out of Stock
+                                </span>
+                            }
+                        </div>
+
+                        <hr class="opacity-10" />
+
+                        <div class="info-label">Product Description</div>
+                        <div class="description-box">
+                            @(string.IsNullOrEmpty(Model.Description) ? "No description provided for this product." : Model.Description)
+                        </div>
+
+                        <div class="action-zone mt-5">
+                            @if (Model.Stock > 0)
+                            {
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                    <input type="hidden" name="productId" value="@Model.ProductId" />
+
+                                    <div class="mb-3">
+                                        <label class="qty-label">Select Quantity:</label>
+                                        <input type="number"
+                                               name="quantity"
+                                               value="1"
+                                               min="1"
+                                               max="@Model.Stock"
+                                               class="qty-input" />
+                                    </div>
+
+                                    <button type="submit" class="btn btn-add-cart">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-add-cart btn-disabled" disabled>
+                                    <i class="fas fa-ban"></i> Currently Unavailable
+                                </button>
+                            }
+                        </div>
+
+                        <div class="mt-4 pt-2 border-top">
+                            <div class="row text-center text-muted small">
+                                <div class="col-4 border-end"><i class="fas fa-shield-alt d-block mb-1"></i> Secure Pay</div>
+                                <div class="col-4 border-end"><i class="fas fa-truck d-block mb-1"></i> Fast Delivery</div>
+                                <div class="col-4"><i class="fas fa-undo d-block mb-1"></i> Easy Return</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function changeImage(src) {
+            const mainImg = document.getElementById('mainProdImage');
+            mainImg.style.opacity = '0.5';
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+            }, 100);
+        }
+    </script>
+}

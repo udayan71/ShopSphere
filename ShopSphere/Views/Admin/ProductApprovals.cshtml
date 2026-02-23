@@ -1,0 +1,262 @@
+﻿@model IEnumerable<ShopSphere.Domain.Models.Product>
+
+@{
+    ViewData["Title"] = "Product Approvals";
+}
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body {
+        background-color: #fcfcfc;
+        font-family: 'Inter', sans-serif;
+        color: #334155;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .dashboard-header h2 {
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+
+    /* Card Styling */
+    .approval-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+        .table thead {
+            background-color: #f8fafc;
+        }
+
+            .table thead th {
+                font-weight: 600;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #64748b;
+                padding: 1.25rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+        .table tbody td {
+            padding: 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+    /* Product Image Styling */
+    .img-stack {
+        display: flex;
+        align-items: center;
+    }
+
+    .product-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-right: -15px;
+        transition: transform 0.2s;
+    }
+
+        .product-img:hover {
+            transform: translateY(-5px) scale(1.1);
+            z-index: 10;
+            margin-right: 5px;
+        }
+
+    /* Buttons */
+    .btn-ss-approve {
+        background-color: #10b981;
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-ss-approve:hover {
+            background-color: #059669;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .btn-ss-reject {
+        background-color: #fff;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+
+        .btn-ss-reject:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+
+    .rejection-box {
+        background: #fff5f5;
+        border-radius: 8px;
+        padding: 15px;
+        border-left: 4px solid #ef4444;
+    }
+
+    .price-tag {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .stock-badge {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        padding: 4rem;
+        text-align: center;
+        color: #94a3b8;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-header">
+        <div>
+            <h2>Pending Product Approvals</h2>
+            <p class="text-muted">Review and manage new product listings</p>
+        </div>
+        <span class="badge bg-primary rounded-pill">@Model.Count() Pending</span>
+    </div>
+
+    <div class="approval-card">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product Details</th>
+                        <th>Price</th>
+                        <th>Stock Status</th>
+                        <th>Media</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                                <p>All caught up! No products pending approval.</p>
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@product.Name</div>
+                                <small class="text-muted">ID: #@product.ProductId</small>
+                            </td>
+                            <td>
+                                <span class="price-tag">₹ @product.Price.ToString("N2")</span>
+                            </td>
+                            <td>
+                                @if (product.Stock > 10)
+                                {
+                                    <span class="stock-badge bg-success-subtle text-success">
+                                        <i class="fas fa-box me-1"></i> @product.Stock in stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-badge bg-warning-subtle text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> Only @product.Stock left
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="img-stack">
+                                    @if (product.Images != null && product.Images.Any())
+                                    {
+                                        foreach (var img in product.Images.Take(3))
+                                        {
+                                            <img src="@img.ImagePath" class="product-img" title="Product Image" />
+                                        }
+                                        @if (product.Images.Count() > 3)
+                                        {
+                                            <span class="ms-4 small text-muted">+@(product.Images.Count() - 3) more</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small italic">No images</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-action="ApproveProduct"
+                                   asp-route-productId="@product.ProductId"
+                                   class="btn btn-ss-approve me-2">
+                                    <i class="fas fa-check me-1"></i> Approve
+                                </a>
+
+                                <button type="button"
+                                        class="btn btn-ss-reject"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#reject-@product.ProductId">
+                                    <i class="fas fa-times me-1"></i> Reject
+                                </button>
+
+                                <!-- Rejection Form -->
+                                <div class="collapse mt-3 text-start" id="reject-@product.ProductId">
+                                    <div class="rejection-box">
+                                        <form asp-action="RejectProduct" method="post">
+                                            <input type="hidden" name="productId" value="@product.ProductId" />
+                                            <label class="form-label small fw-bold">Rejection Reason</label>
+                                            <textarea name="reason"
+                                                  class="form-control form-control-sm mb-2"
+                                                  placeholder="Why is this product being rejected?"
+                                                  rows="2"
+                                                  required></textarea>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-danger btn-sm px-3">
+                                                    Confirm Rejection
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

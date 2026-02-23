@@ -1,0 +1,286 @@
+﻿@model IEnumerable<ShopSphere.Domain.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+    decimal grandTotal = Model?.Sum(item => item.Price * item.Quantity) ?? 0;
+}
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --ss-primary: #4a86e8;
+        --ss-bg: #f8fafc;
+        --ss-text: #1e293b;
+        --ss-border: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--ss-bg);
+        font-family: 'Inter', sans-serif;
+        color: var(--ss-text);
+    }
+
+    .page-title {
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--ss-text);
+    }
+
+    /* Table & Card Styling */
+    .cart-card {
+        background: #ffffff;
+        border: 1px solid var(--ss-border);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        overflow: hidden;
+    }
+
+    .table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+        .table thead th {
+            background-color: #f1f5f9;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1.2rem 1.5rem;
+            border: none;
+        }
+
+        .table tbody td {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+    /* Quantity Controls */
+    .qty-input {
+        width: 70px;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .btn-update {
+        background-color: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-radius: 8px;
+        padding: 0 12px;
+        height: 38px;
+        transition: all 0.2s;
+    }
+
+        .btn-update:hover {
+            background-color: var(--ss-primary);
+            color: white;
+            border-color: var(--ss-primary);
+        }
+
+    .btn-remove {
+        color: #ef4444;
+        background: #fee2e2;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    
+    .btn-checkout-custom {
+        background-color: #4A86E8 !important; 
+        border-color: #4A86E8 !important;
+        color: white !important;
+        border-radius: 12px; 
+        font-size: 1.1rem;
+        letter-spacing: 0.2px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-checkout-custom:hover {
+            background-color: #357ABD !important; 
+            box-shadow: 0 6px 12px rgba(74, 134, 232, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-checkout-custom:active {
+            transform: translateY(0);
+        }
+
+        .btn-remove:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+    /* Summary Sidebar */
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid var(--ss-border);
+        border-radius: 16px;
+        padding: 2rem;
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--ss-border);
+        padding-bottom: 1rem;
+    }
+
+    .grand-total {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #10b981;
+    }
+
+    .btn-checkout {
+        background-color: var(--ss-primary);
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-top: 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-checkout:hover {
+            background-color: #3b71ca;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(74, 134, 232, 0.2);
+            color: white;
+        }
+</style>
+
+<div class="container py-5">
+    <h2 class="page-title"><i class="fas fa-shopping-cart me-2"></i>Your Shopping Cart</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="cart-card p-5 text-center">
+            <i class="fas fa-shopping-basket fa-4x mb-3 text-light"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Looks like you haven't added anything to your cart yet.</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary mt-3 px-4 py-2 rounded-pill">
+                Continue Shopping
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Left Side: Items Table -->
+            <div class="col-lg-8">
+                <div class="cart-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product Details</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    var itemTotal = item.Price * item.Quantity;
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@item.Name</div>
+                                            <small class="text-muted">Item ID: #@item.CartItemId</small>
+                                        </td>
+                                        <td>₹@item.Price.ToString("N2")</td>
+                                        <td>
+                                            <form asp-action="UpdateQuantity" method="post" class="d-flex align-items-center">
+                                                <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                <input type="number" name="quantity" value="@item.Quantity" min="1" class="qty-input me-2" />
+                                                <button type="submit" class="btn btn-update" title="Update Quantity">
+                                                    Update
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td class="fw-bold text-dark">₹@itemTotal.ToString("N2")</td>
+                                        <td>
+                                            <a asp-action="Remove" asp-route-id="@item.CartItemId" class="btn btn-remove" title="Remove Item">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a asp-controller="Products" asp-action="Index" class="text-decoration-none text-muted small">
+                        <i class="fas fa-arrow-left me-1"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Side: Order Summary -->
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h3 class="summary-title">Order Summary</h3>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-bold">₹@grandTotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Shipping</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+
+                    <hr class="my-4 opacity-10" />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold">Total Amount</span>
+                        <span class="grand-total">₹@grandTotal.ToString("N2")</span>
+                    </div>
+                    @* Checkout *@
+                    <div class="d-grid mt-3">
+                        <a asp-controller="Checkout"
+                           asp-action="Index"
+                           class="btn btn-checkout-custom btn-lg py-3 fw-bold d-flex justify-content-center align-items-center">
+                            <i class="fas fa-lock me-2"></i>
+                            <span>PROCEED TO CHECKOUT</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" height="15" class="mx-2 opacity-50" />
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" height="20" class="mx-2 opacity-50" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
