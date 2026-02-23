@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Add Product";
+    var categories = ViewBag.Categories as IEnumerable<ShopSphere.Domain.Models.Category> ?? Enumerable.Empty<ShopSphere.Domain.Models.Category>();
 }
 
 <!-- Google Fonts & Icons -->
@@ -168,6 +169,14 @@
                         </div>
                         <span asp-validation-for="Stock" class="text-danger small"></span>
                     </div>
+                </div>
+                <!-- Category -->
+                <div class="mb-4">
+                    <label asp-for="CategoryId" class="form-label">Category</label>
+                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                        <option value="">Select a category</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
                 </div>
 
                 <!-- Image Upload -->

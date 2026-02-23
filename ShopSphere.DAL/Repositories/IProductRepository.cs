@@ -21,5 +21,9 @@ namespace ShopSphere.DAL.Repositories
 
 
         Task<IEnumerable<Product>> GetApprovedProductsAsync();
+
+
+        Task <IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<Category>> GetCategoriesAsync();
     }
 }

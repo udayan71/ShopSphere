@@ -2,7 +2,24 @@
 
 @{
     ViewData["Title"] = "All Products";
+    var categories = ViewBag.Categories as IEnumerable<ShopSphere.Domain.Models.Category> ?? Enumerable.Empty<ShopSphere.Domain.Models.Category>();
+    var currentCategoryId = ViewBag.CurrentCategoryId as int?;
 }
+
+
+<!-- Category filter -->
+<div class="container py-3">
+    <div class="d-flex align-items-center mb-3">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-secondary me-2 @(currentCategoryId == null ? "active" : "")">All</a>
+        @foreach (var cat in categories)
+        {
+            <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@cat.CategoryId"
+               class="btn btn-sm btn-outline-secondary me-2 @(currentCategoryId == cat.CategoryId ? "active" : "")">
+                @cat.Name
+            </a>
+        }
+    </div>
+</div>
 
 <!-- Google Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

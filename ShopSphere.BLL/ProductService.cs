@@ -54,7 +54,7 @@ namespace ShopSphere.BLL
             await _productRepository.ApproveProductAsync(productId);
         }
 
-        public async Task RejectProductAsync(int productId,string reason)
+        public async Task RejectProductAsync(int productId, string reason)
         {
             await _productRepository.RejectProductAsync(productId, reason);
         }
@@ -97,6 +97,25 @@ namespace ShopSphere.BLL
             return products;
         }
 
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        {
+            var products = (await _productRepository
+                            .GetProductsByCategoryAsync(categoryId))
+                            .ToList();
+            foreach (var product in products)
+            {
+                var images = await _productRepository
+                                   .GetProductImagesAsync(product.ProductId);
+                product.Images = images.ToList();
+            }
+            return products;
+        }
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            return await _productRepository.GetCategoriesAsync();
+
+        }
 
     }
 }

@@ -12,9 +12,16 @@ namespace ShopSphere.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? categoryId)
         {
-            var products = await _productService.GetApprovedProductsAsync();
+            var categories = await _productService.GetCategoriesAsync();
+            ViewBag.Categories = categories;
+            ViewBag.CurrentCategoryId = categoryId;
+
+            var products = categoryId.HasValue
+                ? await _productService.GetProductsByCategoryAsync(categoryId.Value)
+                : await _productService.GetApprovedProductsAsync();
+
             return View(products);
         }
 

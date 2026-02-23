@@ -24,9 +24,10 @@ namespace ShopSphere.DAL.Repositories
             parameters.Add("@Description", product.Description);
             parameters.Add("@Price", product.Price);
             parameters.Add("@Stock", product.Stock);
+            parameters.Add("@CategoryId", product.CategoryId);
             using var connection = _context.CreateConnection();
 
-            var productId=await connection.ExecuteScalarAsync<int>("sp_Product_CRUD",
+            var productId = await connection.ExecuteScalarAsync<int>("sp_Product_CRUD",
                 parameters, commandType: CommandType.StoredProcedure);
             return productId;
         }
@@ -141,5 +142,28 @@ namespace ShopSphere.DAL.Repositories
                 commandType: CommandType.StoredProcedure);
         }
 
+
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Flag", "GetProductsByCategory");
+            parameters.Add("@CategoryId", categoryId);
+
+            using var connection = _context.CreateConnection();
+            return await connection.QueryAsync<Product>(
+                "sp_Product_CRUD", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Flag", "GetCategories");
+            using var connection = _context.CreateConnection();
+            return await connection.QueryAsync<Category>(
+                "sp_Product_CRUD", parameters,
+                commandType: CommandType.StoredProcedure);
+
+        }
     }
 }

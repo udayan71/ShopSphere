@@ -70,15 +70,23 @@ namespace ShopSphere.Controllers
             return View(products);
         }
         [HttpGet]
-        public IActionResult AddProduct()
+        public async Task<IActionResult> AddProduct()
         {
+            // load categories and pass a SelectList (not the Task)
+            var categories = (await _productService.GetCategoriesAsync()).ToList();
+            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(categories, "CategoryId", "Name");
             return View();
         }
         [HttpPost]
         public async Task<IActionResult> AddProduct(Product model, List<IFormFile>? images)
         {
             if (!ModelState.IsValid)
+            {
+                // repopulate the SelectList when returning the view on validation error
+                var cats = (await _productService.GetCategoriesAsync()).ToList();
+                ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(cats, "CategoryId", "Name");
                 return View(model);
+            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)

@@ -14,5 +14,9 @@ namespace ShopSphere.BLL
         Task ReduceStockAsync(int productId, int quantity);
 
         Task<IEnumerable<Product>> GetApprovedProductsAsync();
+
+
+        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<Category>> GetCategoriesAsync();
     }
 }
