@@ -4,38 +4,8 @@
     ViewData["Title"] = "All Products";
     var categories = ViewBag.Categories as IEnumerable<ShopSphere.Domain.Models.Category> ?? Enumerable.Empty<ShopSphere.Domain.Models.Category>();
     var currentCategoryId = ViewBag.CurrentCategoryId as int?;
+    var searchQuery = ViewBag.SearchQuery as string ?? string.Empty;
 }
-
-
-<!-- Category Filter Section -->
-<div class="category-nav-wrapper py-4">
-    <div class="container">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="section-subtitle">Categories</h5>
-            @if (currentCategoryId != null)
-            {
-                <a asp-action="Index" class="text-decoration-none small text-primary">Clear Filter</a>
-            }
-        </div>
-
-        <div class="category-scroll-container">
-            <!-- "All" Filter -->
-            <a asp-controller="Products" asp-action="Index"
-               class="category-chip @(currentCategoryId == null ? "active" : "")">
-                <i class="fas fa-th-large"></i>
-                <span>All Products</span>
-            </a>
-
-            @foreach (var cat in categories)
-            {
-                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@cat.CategoryId"
-                   class="category-chip @(currentCategoryId == cat.CategoryId ? "active" : "")">
-                    <span>@cat.Name</span>
-                </a>
-            }
-        </div>
-    </div>
-</div>
 
 <!-- Google Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,37 +14,118 @@
 <style>
     :root {
         --ss-primary: #4a86e8;
+        --ss-primary-soft: rgba(74, 134, 232, 0.1);
         --ss-text-main: #1e293b;
         --ss-text-muted: #64748b;
-        --ss-bg: #ffffff;
+        --ss-bg: #f8fafc;
+        --ss-card-bg: #ffffff;
+        --ss-border: #e2e8f0;
     }
 
     body {
-        background-color: #f8fafc;
+        background-color: var(--ss-bg);
         font-family: 'Inter', sans-serif;
+        color: var(--ss-text-main);
     }
 
+    /* --- Search & Filter Header --- */
+    .filter-wrapper {
+        background: var(--ss-card-bg);
+        border-bottom: 1px solid var(--ss-border);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .search-container {
+        position: relative;
+        max-width: 500px;
+    }
+
+    .search-input {
+        padding: 0.6rem 1.25rem 0.6rem 2.8rem;
+        border-radius: 50px;
+        border: 1px solid var(--ss-border);
+        background: var(--ss-bg);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 4px var(--ss-primary-soft);
+            border-color: var(--ss-primary);
+            outline: none;
+        }
+
+    .search-icon {
+        position: absolute;
+        left: 1.1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--ss-text-muted);
+        pointer-events: none;
+    }
+
+    /* --- Category Chips --- */
+    .category-scroll-container {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 5px 0;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+
+        .category-scroll-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+    .category-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 18px;
+        background: var(--ss-card-bg);
+        border: 1px solid var(--ss-border);
+        border-radius: 50px;
+        color: var(--ss-text-main);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+        .category-chip:hover {
+            background: var(--ss-bg);
+            border-color: var(--ss-primary);
+            color: var(--ss-primary);
+        }
+
+        .category-chip.active {
+            background: var(--ss-primary);
+            border-color: var(--ss-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(74, 134, 232, 0.25);
+        }
+
+    /* --- Product Card Styling (Retained & Polished) --- */
     .page-title {
         font-weight: 700;
-        color: var(--ss-text-main);
         letter-spacing: -0.5px;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
-    /* Card Styling */
     .product-link {
         text-decoration: none !important;
         color: inherit;
-        display: block;
-        height: 100%;
     }
 
     .product-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: var(--ss-card-bg);
+        border: 1px solid var(--ss-border);
         border-radius: 12px;
         overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -82,14 +133,13 @@
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
             border-color: var(--ss-primary);
         }
 
     .image-container {
         position: relative;
-        width: 100%;
-        padding-top: 100%; /* 1:1 Aspect Ratio */
+        padding-top: 100%;
         background-color: #f1f5f9;
         overflow: hidden;
     }
@@ -105,135 +155,104 @@
     }
 
     .product-card:hover .product-image {
-        transform: scale(1.08);
+        transform: scale(1.05);
     }
 
     .card-content {
-        padding: 1.25rem;
+        padding: 1rem;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
     }
 
     .product-name {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: var(--ss-text-main);
+        font-size: 0.9rem;
+        font-weight: 600;
         margin-bottom: 0.5rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 2.8rem; /* Keeps alignment consistent */
-    }
-
-    .price-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: auto;
+        height: 2.6rem;
     }
 
     .product-price {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: var(--ss-primary);
     }
 
     .btn-view {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.7rem;
+        font-weight: 700;
         text-transform: uppercase;
         color: var(--ss-text-muted);
-        letter-spacing: 0.5px;
     }
 
-    /* Empty State */
     .empty-catalog {
         text-align: center;
         padding: 5rem 1rem;
         color: var(--ss-text-muted);
     }
-
-
-    /* Enhanced Category Section Styling */
-    // .category-nav-wrapper {
-    //     // background: #ffffff;
-    //     border-bottom: 1px solid #e2e8f0;
-    //     margin-bottom: 1.5rem;
-    // }
-
-    .section-subtitle {
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--ss-text-muted);
-        margin: 0;
-    }
-
-    .category-scroll-container {
-        display: flex;
-        gap: 10px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        scrollbar-width: none; /* Hide scrollbar for Firefox */
-        -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
-    }
-
-        .category-scroll-container::-webkit-scrollbar {
-            display: none; /* Hide scrollbar for Chrome/Safari */
-        }
-
-    .category-chip {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 20px;
-        background: #f1f5f9;
-        border: 1px solid transparent;
-        border-radius: 50px;
-        color: var(--ss-text-main);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-    }
-
-        .category-chip i {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        .category-chip:hover {
-            background: #e2e8f0;
-            color: var(--ss-primary);
-        }
-
-        .category-chip.active {
-            background: var(--ss-primary);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(74, 134, 232, 0.3);
-        }
-
-            .category-chip.active i {
-                opacity: 1;
-            }
-
 </style>
 
-<div class="container py-4">
-    <h2 class="page-title">Explore Our Collection</h2>
+<!-- Top Filter Section -->
+<div class="filter-wrapper">
+    <div class="container">
+        <div class="row g-3 align-items-center">
+            <!-- Search Box -->
+            <div class="col-lg-5 col-md-6">
+                <form method="get" asp-controller="Products" asp-action="Index">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" name="q" value="@searchQuery"
+                               class="form-control search-input"
+                               placeholder="Search for products..." />
+                        <input type="hidden" name="categoryId" value="@currentCategoryId" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Category Chips -->
+            <div class="col-lg-7 col-md-6">
+                <div class="category-scroll-container">
+                    <a asp-action="Index" asp-route-q="@searchQuery"
+                       class="category-chip @(currentCategoryId == null ? "active" : "")">
+                        All Items
+                    </a>
+                    @foreach (var cat in categories)
+                    {
+                        <a asp-action="Index" asp-route-categoryId="@cat.CategoryId" asp-route-q="@searchQuery"
+                           class="category-chip @(currentCategoryId == cat.CategoryId ? "active" : "")">
+                            @cat.Name
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(searchQuery) || currentCategoryId != null)
+                    {
+                        <a asp-action="Index" class="text-danger small ms-2 text-decoration-none py-2">
+                            Clear Filters
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h2 class="page-title m-0">Explore Collection</h2>
+        <span class="text-muted small">Showing @Model.Count() products</span>
+    </div>
 
     <div class="row g-4">
-        @if (Model == null || !Model.Any())
+        @if (!Model.Any())
         {
             <div class="col-12 empty-catalog">
-                <i class="fas fa-search fa-3x mb-3 opacity-20"></i>
+                <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
                 <h3>No products found</h3>
-                <p>We couldn't find any products matching your request.</p>
+                <p>Try adjusting your search or category filters.</p>
+                <a asp-action="Index" class="btn btn-primary rounded-pill mt-3">Browse All Products</a>
             </div>
         }
         else
@@ -241,20 +260,12 @@
             @foreach (var product in Model)
             {
                 <div class="col-6 col-md-4 col-lg-3">
-                    <a asp-controller="Products"
-                       asp-action="Details"
-                       asp-route-id="@product.ProductId"
-                       class="product-link">
-
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.ProductId" class="product-link">
                         <div class="product-card">
-                            <!-- Image Section with safety check -->
                             <div class="image-container">
-                                @if (product.Images != null && product.Images.Any() && !string.IsNullOrEmpty(product.Images.First().ImagePath))
+                                @if (product.Images?.Any() == true)
                                 {
-                                    <img src="@product.Images.First().ImagePath"
-                                         class="product-image"
-                                         alt="@product.Name"
-                                         loading="lazy" />
+                                    <img src="@product.Images.First().ImagePath" class="product-image" alt="@product.Name" loading="lazy" />
                                 }
                                 else
                                 {
@@ -263,14 +274,11 @@
                                     </div>
                                 }
                             </div>
-
-                            <!-- Content Section -->
                             <div class="card-content">
-                                <h6 class="product-name">@(product.Name ?? "Unnamed Product")</h6>
-
-                                <div class="price-container">
+                                <h6 class="product-name">@product.Name</h6>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
                                     <span class="product-price">₹@product.Price.ToString("N0")</span>
-                                    <span class="btn-view">Details <i class="fas fa-arrow-right ms-1"></i></span>
+                                    <span class="btn-view">View <i class="fas fa-chevron-right ms-1"></i></span>
                                 </div>
                             </div>
                         </div>

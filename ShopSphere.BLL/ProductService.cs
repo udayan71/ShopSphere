@@ -117,5 +117,22 @@ namespace ShopSphere.BLL
 
         }
 
-    }
+
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm)
+        {
+            var products = (await _productRepository
+                            .SearchProductsAsync(searchTerm))
+                            .ToList();
+            foreach (var product in products)
+            {
+                var images = await _productRepository
+                                   .GetProductImagesAsync(product.ProductId);
+                product.Images = images.ToList();
+            }
+            return products;
+
+        }
+
+
+        }
 }

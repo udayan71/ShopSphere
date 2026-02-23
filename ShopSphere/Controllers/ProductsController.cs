@@ -12,18 +12,31 @@ namespace ShopSphere.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId, string? q)
         {
             var categories = await _productService.GetCategoriesAsync();
             ViewBag.Categories = categories;
             ViewBag.CurrentCategoryId = categoryId;
+            ViewBag.SearchQuery = q ?? string.Empty;
 
-            var products = categoryId.HasValue
-                ? await _productService.GetProductsByCategoryAsync(categoryId.Value)
-                : await _productService.GetApprovedProductsAsync();
+            IEnumerable<ShopSphere.Domain.Models.Product> products;
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                products = await _productService.SearchProductsAsync(q.Trim());
+            }
+            else if (categoryId.HasValue)
+            {
+                products = await _productService.GetProductsByCategoryAsync(categoryId.Value);
+            }
+            else
+            {
+                products = await _productService.GetApprovedProductsAsync();
+            }
 
             return View(products);
         }
+
 
         public async Task<IActionResult> Details(int id)
         {

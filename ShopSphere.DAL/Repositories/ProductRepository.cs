@@ -165,5 +165,17 @@ namespace ShopSphere.DAL.Repositories
                 commandType: CommandType.StoredProcedure);
 
         }
+
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@Flag", "SearchProducts");
+            parameters.Add("@SearchTerm", searchTerm);
+            using var connection = _context.CreateConnection();
+            return await connection.QueryAsync<Product>(
+                "sp_Product_CRUD", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
     }
 }

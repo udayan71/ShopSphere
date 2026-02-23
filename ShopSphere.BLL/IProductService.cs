@@ -18,5 +18,7 @@ namespace ShopSphere.BLL
 
         Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
         Task<IEnumerable<Category>> GetCategoriesAsync();
+
+        Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm);
     }
 }
