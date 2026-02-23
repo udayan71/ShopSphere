@@ -127,7 +127,9 @@ namespace ShopSphere.Controllers
                         // Basic image validation
                         if (extension != ".jpg" &&
                             extension != ".jpeg" &&
-                            extension != ".png")
+                            extension != ".png"  &&
+                            extension !=".webp"
+                            )
                             continue;
 
                         var fileName = Guid.NewGuid() + extension;
