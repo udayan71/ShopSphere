@@ -7,17 +7,33 @@
 }
 
 
-<!-- Category filter -->
-<div class="container py-3">
-    <div class="d-flex align-items-center mb-3">
-        <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-secondary me-2 @(currentCategoryId == null ? "active" : "")">All</a>
-        @foreach (var cat in categories)
-        {
-            <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@cat.CategoryId"
-               class="btn btn-sm btn-outline-secondary me-2 @(currentCategoryId == cat.CategoryId ? "active" : "")">
-                @cat.Name
+<!-- Category Filter Section -->
+<div class="category-nav-wrapper py-4">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="section-subtitle">Categories</h5>
+            @if (currentCategoryId != null)
+            {
+                <a asp-action="Index" class="text-decoration-none small text-primary">Clear Filter</a>
+            }
+        </div>
+
+        <div class="category-scroll-container">
+            <!-- "All" Filter -->
+            <a asp-controller="Products" asp-action="Index"
+               class="category-chip @(currentCategoryId == null ? "active" : "")">
+                <i class="fas fa-th-large"></i>
+                <span>All Products</span>
             </a>
-        }
+
+            @foreach (var cat in categories)
+            {
+                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@cat.CategoryId"
+                   class="category-chip @(currentCategoryId == cat.CategoryId ? "active" : "")">
+                    <span>@cat.Name</span>
+                </a>
+            }
+        </div>
     </div>
 </div>
 
@@ -139,6 +155,73 @@
         padding: 5rem 1rem;
         color: var(--ss-text-muted);
     }
+
+
+    /* Enhanced Category Section Styling */
+    // .category-nav-wrapper {
+    //     // background: #ffffff;
+    //     border-bottom: 1px solid #e2e8f0;
+    //     margin-bottom: 1.5rem;
+    // }
+
+    .section-subtitle {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--ss-text-muted);
+        margin: 0;
+    }
+
+    .category-scroll-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        scrollbar-width: none; /* Hide scrollbar for Firefox */
+        -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+    }
+
+        .category-scroll-container::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome/Safari */
+        }
+
+    .category-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        background: #f1f5f9;
+        border: 1px solid transparent;
+        border-radius: 50px;
+        color: var(--ss-text-main);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+        .category-chip i {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .category-chip:hover {
+            background: #e2e8f0;
+            color: var(--ss-primary);
+        }
+
+        .category-chip.active {
+            background: var(--ss-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(74, 134, 232, 0.3);
+        }
+
+            .category-chip.active i {
+                opacity: 1;
+            }
+
 </style>
 
 <div class="container py-4">
